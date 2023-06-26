@@ -109,15 +109,18 @@ def _load_image(parent, filename=None, load_seg=True):
     if load_seg:
         if os.path.isfile(manual_file) and not parent.autoloadMasks.isChecked():
             _load_seg(parent, manual_file, image=imread(filename), image_file=filename)
+            print(f"INFO: saturation={parent.saturation}")
             return
         elif os.path.isfile(os.path.splitext(filename)[0]+'_manual.npy'):
             manual_file = os.path.splitext(filename)[0]+'_manual.npy'
             _load_seg(parent, manual_file, image=imread(filename), image_file=filename)
+            print(f"INFO: saturation={parent.saturation}")
             return
         elif parent.autoloadMasks.isChecked():
             mask_file = os.path.splitext(filename)[0]+'_masks'+os.path.splitext(filename)[-1]
             mask_file = os.path.splitext(filename)[0]+'_masks.tif' if not os.path.isfile(mask_file) else mask_file
             load_mask = True if os.path.isfile(mask_file) else False
+
     try:
         print(f'GUI_INFO: loading image: {filename}')
         image = imread(filename)
@@ -136,7 +139,7 @@ def _load_image(parent, filename=None, load_seg=True):
         parent.enable_buttons()
         if load_mask:
             _load_masks(parent, filename=mask_file)
-            
+
 
 
 def _initialize_images(parent, image, resize, X2):
@@ -202,14 +205,24 @@ def _initialize_images(parent, image, resize, X2):
     parent.Ly, parent.Lx = parent.stack.shape[1:3]
     parent.layerz = 255 * np.ones((parent.Ly,parent.Lx,4), 'uint8')
     print(parent.layerz.shape)
-    if parent.autobtn.isChecked():
-        parent.compute_saturation()
-    elif len(parent.saturation) != parent.NZ:
+    # if parent.autobtn.isChecked():
+    #     parent.compute_saturation()
+    if len(parent.saturation) != parent.NZ:
         parent.saturation = []
         for n in range(parent.NZ):
-            parent.saturation.append([0, 255])
-        parent.slider.setLow(0)
-        parent.slider.setHigh(255)
+            parent.saturation.append([[0, 255], [0, 255], [0, 255]])
+        parent.rslider.setLow(0)
+        parent.rslider.setHigh(255)
+        parent.gslider.setLow(0)
+        parent.gslider.setHigh(255)
+        parent.bslider.setLow(0)
+        parent.bslider.setHigh(255)
+    parent.rslider.setValue(parent.saturation[0][0])
+    parent.rslider.show()
+    parent.gslider.setValue(parent.saturation[0][1])
+    parent.gslider.show()
+    parent.bslider.setValue(parent.saturation[0][2])
+    parent.bslider.show()
     parent.compute_scale()
     parent.currentZ = int(np.floor(parent.NZ/2))
     parent.scroll.setValue(parent.currentZ)
@@ -274,6 +287,8 @@ def _load_seg(parent, filename=None, image=None, image_file=None):
             parent.resize = max(dat['img'].shape)
     else:
         parent.resize = -1
+    if 'saturation' in dat:
+        parent.saturation = dat['saturation']
     _initialize_images(parent, image, resize=parent.resize, X2=parent.X2)
     if 'chan_choose' in dat:
         parent.ChannelChoose[0].setCurrentIndex(dat['chan_choose'][0])
@@ -493,7 +508,8 @@ def _save_sets(parent):
                  'zdraw': parent.zdraw,
                  'model_path': parent.current_model_path if hasattr(parent, 'current_model_path') else 0,
                  'flow_threshold': flow_threshold,
-                 'cellprob_threshold': cellprob_threshold
+                 'cellprob_threshold': cellprob_threshold,
+                 'saturation': parent.saturation
                  })
     else:
         image = parent.chanchoose(parent.stack[parent.currentZ].copy())
@@ -512,6 +528,8 @@ def _save_sets(parent):
                  'manual_changes': parent.track_changes,
                  'model_path': parent.current_model_path if hasattr(parent, 'current_model_path') else 0,
                  'flow_threshold': flow_threshold,
-                 'cellprob_threshold': cellprob_threshold})
+                 'cellprob_threshold': cellprob_threshold,
+                 'saturation': parent.saturation
+                 }),
     #print(parent.point_sets)
     print('GUI_INFO: %d ROIs saved to %s'%(parent.ncells, base + '_seg.npy'))
