@@ -1403,7 +1403,10 @@ class MainW(QMainWindow):
                 if not self.onechan:
                     image[:,:,0] = 0
                 self.img.setImage(image, autoLevels=False, lut=None)
-            self.img.setLevels(self.saturation[self.currentZ])
+            if self.color>0 and self.color<4:
+                self.img.setLevels(self.saturation[self.currentZ][self.color-1])
+            else:
+                self.img.setLevels(self.saturation[self.currentZ])
             # print(f'INFO: saturation {self.saturation}.')
         else:
             image = np.zeros((self.Ly,self.Lx), np.uint8)
