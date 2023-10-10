@@ -494,6 +494,9 @@ class MainW(QMainWindow):
             self.l0.addWidget(self.ChannelChoose[i], b,5,1,4)
             b+=1
 
+        self.ChannelChoose[0].setCurrentIndex(1)
+        self.ChannelChoose[1].setCurrentIndex(3)
+
         # post-hoc paramater tuning
 
         b+=1

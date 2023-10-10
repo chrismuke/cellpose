@@ -293,6 +293,11 @@ def _load_seg(parent, filename=None, image=None, image_file=None):
     if 'chan_choose' in dat:
         parent.ChannelChoose[0].setCurrentIndex(dat['chan_choose'][0])
         parent.ChannelChoose[1].setCurrentIndex(dat['chan_choose'][1])
+    else:
+        parent.ChannelChoose[0].setCurrentIndex(1)
+        parent.ChannelChoose[1].setCurrentIndex(3)
+    parent.ChannelChoose[0].setCurrentIndex(1)
+    parent.ChannelChoose[1].setCurrentIndex(3)
     if 'outlines' in dat:
         if isinstance(dat['outlines'], list):
             # old way of saving files
