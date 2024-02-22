@@ -380,6 +380,7 @@ class MainW(QMainWindow):
         self.OCheckBox = QCheckBox('outlines on [Z]')
         self.OCheckBox.setStyleSheet(self.checkstyle)
         self.OCheckBox.setFont(self.medfont)
+        self.OCheckBox.toggled.connect(self.toggle_masks)
         self.l0.addWidget(self.OCheckBox, b,5,1,4)
 
         # buttons for deleting multiple cells
@@ -1007,6 +1008,7 @@ class MainW(QMainWindow):
             io._load_seg(self, filename=files[0])
         else:
             io._load_image(self, filename=files[0])
+
 
     def toggle_masks(self):
         if self.MCheckBox.isChecked():
